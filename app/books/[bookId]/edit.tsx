@@ -12,6 +12,8 @@ import {
 import { Checkbox } from "expo-checkbox";
 import { getBookById, updateBook } from "@/services/bookService";
 import Book from "@/models/Book";
+import StarRating from "@/components/starRating";
+import * as ImagePicker from "expo-image-picker";
 
 const EditBookPage = () => {
   const router = useRouter();
@@ -25,6 +27,7 @@ const EditBookPage = () => {
   const [theme, setTheme] = useState("");
   const [cover, setCover] = useState("");
   const [read, setRead] = useState(false);
+  const [rating, setRating] = useState(0);
 
   const [loading, setLoading] = useState(true);
 
@@ -40,6 +43,7 @@ const EditBookPage = () => {
         setTheme(data.theme);
         setCover(data.cover);
         setRead(data.read);
+        setRating(data.rating);
       })
       .catch(() => {
         Alert.alert("Error", "Unable to load book details.");
@@ -59,6 +63,7 @@ const EditBookPage = () => {
       theme,
       cover,
       read,
+      rating,
     };
 
     try {
@@ -67,6 +72,28 @@ const EditBookPage = () => {
       router.replace(`/books/${book.id}`);
     } catch (error) {
       Alert.alert("Error", "Failed to update the book.");
+    }
+  };
+  const handlePickImage = async () => {
+    // Ask for media library permission
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert("Permission to access media library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+
+      setCover(uri);
     }
   };
 
@@ -151,7 +178,7 @@ const EditBookPage = () => {
           placeholder="Cover image URL"
         />
       </View>
-
+      <Button title="Change Cover" onPress={handlePickImage} color="#007AFF" />
       <View style={styles.checkboxContainer}>
         <Checkbox
           value={read}
@@ -159,6 +186,9 @@ const EditBookPage = () => {
           color={read ? "#007AFF" : undefined}
         />
         <Text style={styles.checkboxLabel}>Already read</Text>
+      </View>
+      <View>
+        <StarRating defaultRating={rating} onRatingChange={setRating} />
       </View>
 
       <View style={styles.buttonContainer}>

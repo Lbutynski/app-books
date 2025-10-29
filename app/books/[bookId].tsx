@@ -18,9 +18,10 @@ import {
   addNote,
 } from "@/services/bookService";
 import Book from "@/models/Book";
-import Checkbox from "expo-checkbox";
+import { Checkbox } from "expo-checkbox";
 import Note from "@/models/Note";
 import NoteComponent from "@/components/note";
+import StarRating from "@/components/starRating";
 
 export default function BookDetailPage() {
   const { bookId } = useLocalSearchParams<{ bookId: string }>();
@@ -142,7 +143,7 @@ export default function BookDetailPage() {
 
         <View style={styles.infoBox}>
           <Text style={styles.label}>Rating:</Text>
-          <Text style={styles.value}>{book.rating}/5</Text>
+          <StarRating defaultRating={book.rating} disabled={true} />
         </View>
         <View>
           {notes.map((note) => (

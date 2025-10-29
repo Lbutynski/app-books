@@ -1,3 +1,4 @@
+import StarRating from "@/components/starRating";
 import { addBook } from "@/services/bookService";
 import { Checkbox } from "expo-checkbox";
 import { useRouter } from "expo-router";
@@ -10,6 +11,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 const AddBookPage = () => {
   const router = useRouter();
@@ -20,6 +22,7 @@ const AddBookPage = () => {
   const [theme, setTheme] = useState("");
   const [cover, setCover] = useState("");
   const [read, setRead] = useState(false);
+  const [rating, setRating] = useState(0);
 
   const handleSubmit = () => {
     const book = {
@@ -30,11 +33,34 @@ const AddBookPage = () => {
       theme,
       cover,
       isRead: read,
+      rating,
     };
 
     addBook(book).then(() => {
       router.replace("/");
     });
+  };
+  const handlePickImage = async () => {
+    // Ask for media library permission
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      alert("Permission to access media library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+
+      setCover(uri);
+    }
   };
 
   return (
@@ -101,6 +127,7 @@ const AddBookPage = () => {
           placeholder="Enter the cover image URL"
         />
       </View>
+      <Button title="Change Cover" onPress={handlePickImage} color="#007AFF" />
 
       <View style={styles.checkboxContainer}>
         <Checkbox
@@ -109,6 +136,9 @@ const AddBookPage = () => {
           color={read ? "#007AFF" : undefined}
         />
         <Text style={styles.checkboxLabel}>Already read</Text>
+      </View>
+      <View>
+        <StarRating defaultRating={rating} onRatingChange={setRating} />
       </View>
 
       <View style={styles.buttonContainer}>

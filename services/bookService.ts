@@ -1,9 +1,28 @@
 import Book from "@/models/Book";
+import { SearchOptions } from "@/utils/SearchTypes";
 const API_URL = "http://localhost:3000";
 
-export const getBooks = async (): Promise<Book[]> => {
-  const data = (await fetch(`${API_URL}/books`)).json();
-  return data;
+export const getBooks = async (
+  searchOptions?: SearchOptions
+): Promise<Book[]> => {
+  const params = new URLSearchParams();
+
+  if (searchOptions?.search) params.append("q", searchOptions.search);
+  if (searchOptions?.read !== undefined)
+    params.append("read", String(searchOptions.read));
+  if (searchOptions?.favorite !== undefined)
+    params.append("favorite", String(searchOptions.favorite));
+  if (searchOptions?.sortBy) params.append("sort", searchOptions.sortBy);
+  if (searchOptions?.sortOrder) params.append("order", searchOptions.sortOrder);
+
+  const queryString = params.toString();
+  const url = queryString
+    ? `${API_URL}/books?${queryString}`
+    : `${API_URL}/books`;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch books");
+  return response.json();
 };
 export const getBookById = async (id: string): Promise<Book> => {
   const data = (await fetch(`${API_URL}/books/${id}`)).json();
