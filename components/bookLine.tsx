@@ -1,8 +1,8 @@
 import Book from "@/models/Book";
 import { deleteBook, updateBook } from "@/services/bookService";
 import { useRouter } from "expo-router";
-import { Button, StyleSheet, Text, View } from "react-native";
-import Checkbox from "expo-checkbox"; // ✅ correct import
+import { Button, Image, StyleSheet, Text, View } from "react-native";
+import Checkbox from "expo-checkbox";
 import { useState } from "react";
 
 const BookLine = (book: Book) => {
@@ -23,10 +23,22 @@ const BookLine = (book: Book) => {
 
   return (
     <View style={styles.container}>
+      {book.cover ? (
+        <Image
+          source={{ uri: book.cover }}
+          style={styles.cover}
+          resizeMode="cover"
+        />
+      ) : (
+        <View style={styles.coverPlaceholder}>
+          <Text style={styles.coverPlaceholderText}>No Cover</Text>
+        </View>
+      )}
+
       <View style={styles.info}>
         <Text style={styles.name}>{book.name}</Text>
         <Text style={styles.details}>
-          {book.author} • {book.year}
+          {book.author} • {book.year} • {book.editor} • {book.theme}
         </Text>
       </View>
 
@@ -67,6 +79,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 3,
     elevation: 1,
+  },
+  cover: {
+    width: 60,
+    height: 90,
+    borderRadius: 6,
+    marginRight: 12,
+  },
+  coverPlaceholder: {
+    width: 60,
+    height: 90,
+    borderRadius: 6,
+    marginRight: 12,
+    backgroundColor: "#eee",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  coverPlaceholderText: {
+    color: "#999",
+    fontSize: 12,
   },
   info: {
     flex: 2,
